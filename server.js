@@ -1,6 +1,3 @@
-const dns = require("dns");
-dns.setServers(["8.8.8.8", "1.1.1.1"]);
-
 require("dotenv").config();
 
 const express = require("express");
@@ -13,14 +10,17 @@ const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
+// Allowed frontend URLs
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
 // Middleware
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "http://127.0.0.1:3000",
-      "http://192.168.0.105:3000",
-    ],
+    origin: allowedOrigins,
     credentials: true,
   }),
 );
@@ -37,6 +37,8 @@ app.use("/api/books", bookRoutes);
 
 // Borrow Routes
 app.use("/api/borrows", borrowRoutes);
+
+// Auth Routes
 app.use("/api/auth", authRoutes);
 
 // Start Server
@@ -51,6 +53,7 @@ const startServer = async () => {
     });
   } catch (error) {
     console.error("Server Error:", error);
+    process.exit(1);
   }
 };
 
